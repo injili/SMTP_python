@@ -1,5 +1,6 @@
 # all importations
-from flask import Flask
+from flask import Flask, render_template
+from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -19,6 +20,8 @@ receiver_email = 'gongoro@kabarak.ac.ke'
 # function to send the mail
 
 def send_email(name, phone, email, rooms):
+    current_datetime = datetime.now()
+    timestamp = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
     message = MIMEMultipart("alternative")
     message['Subject'] = ''
     message['From'] = sender_email
@@ -31,21 +34,10 @@ def send_email(name, phone, email, rooms):
         phone number - {}
         email - {}
         number of rooms - {}
-        """.format(name, phone, email, rooms)
+        time - {}
+        """.format(name, phone, email, rooms, timestamp)
 
-    html = """\
-        <html>
-            <body>
-                <p>Here is the information on the new booking:</p>
-                <ul>
-                    <li>name - {{ name }}</li>
-                    <li>phone number - {{ phone }}</li>
-                    <li>email - {{ email }}</li>
-                    <li>number of rooms - {{ rooms }}</li>
-                </ul>
-            </body>
-        </html>
-        """
+    html = render_template('email.html', name=name, phone=phone, email=email, rooms=rooms, timestamp=timestamp)
 
     part1 = MIMEText(text, "plain")
     part2 = MIMEText(html, "html")
@@ -68,6 +60,7 @@ def home():
     email = 'thisone@gmail.com'
     rooms = '2'
     send_email(name, phone, email, rooms)
+    return "ok"
 
 if __name__ == '__main__':
     app.run(port=8111)
